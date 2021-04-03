@@ -29,7 +29,7 @@ const helloWorld = async(req, res) => {
   ];
 
   generateWorkBook(res, workBookDatas);
-  console.log('temp is', wattsTotal.length);
+  console.log('temp is', temperatureData.length);
 };
 
 app.get('/excelreport', helloWorld);
