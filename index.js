@@ -1,10 +1,7 @@
 const express = require('express');
 const { fluxDuration } = require("@influxdata/influxdb-client");
-const { TEMPERATURE_HEADERS, WATTS_HEADERS, CURRENT_HEADERS, REACTIVEPOWER_HEADERS } = require('./src/constants');
-const { getTemperature } = require('./src/temperature');
-const { getTotalWatts } = require('./src/totalWatts');
-const { getCurrent } = require('./src/current');
-const { getReactivePower } = require('./src/reactivePower');
+const { WATTHOURRECEIVED_HEADERS } = require('./src/constants');
+const { getWattHourReceived } = require('./src/wattHour');
 const { generateWorkBook } = require('./src/generateWorkBook');
 
 const app = express();
@@ -16,20 +13,13 @@ const helloWorld = async(req, res) => {
   const selectedDuration = req.query.from.split('-')[1];
   const duration = fluxDuration(`-${selectedDuration}`)
 
-  const temperatureData = await getTemperature(duration);
-  const wattsTotal = await getTotalWatts(duration);
-  const currentTotal = await getCurrent(duration);
-  const reactivePowerTotal = await getReactivePower(duration);
+  const whReceived = await getWattHourReceived(duration);
 
   const workBookDatas = [
-    { sheet_name: 'Temperature', sheet_data: temperatureData, column_name: TEMPERATURE_HEADERS },
-    { sheet_name: 'WattsTotal', sheet_data: wattsTotal, column_name: WATTS_HEADERS },
-    { sheet_name: 'CurrentTotal', sheet_data: currentTotal, column_name: CURRENT_HEADERS },
-    { sheet_name: 'ReactivePower', sheet_data: reactivePowerTotal, column_name: REACTIVEPOWER_HEADERS }
+    { sheet_name: 'Wh Received', sheet_data: whReceived, column_name: WATTHOURRECEIVED_HEADERS }
   ];
 
   generateWorkBook(res, workBookDatas);
-  console.log('temp is', temperatureData.length);
 };
 
 app.get('/excelreport', helloWorld);
