@@ -87,7 +87,7 @@ generateWorkBook = (res, workBookDatas) => {
   generatorCell.font = EXCEL_FONTSTYLES;
  
   const generatorValue = worksheet.getCell("C5");
-  generatorValue.value = workBookDatas[0].sheet_data[1].consumption || 0.00; //it should be 2
+  generatorValue.value = workBookDatas[0].sheet_data[2].consumption || 0.00; //it should be 2
  
   generatorValue.font = EXCEL_FONTSTYLES;
   generatorCell.border = BORDERS;
@@ -100,7 +100,7 @@ generateWorkBook = (res, workBookDatas) => {
   solarCell.value = METER_NAME['Energymeter 29'];
   
   const solarValue = worksheet.getCell("C6");
-  solarValue.value = workBookDatas[0].sheet_data[1].consumption || 0.00; //it should be 28
+  solarValue.value = workBookDatas[0].sheet_data[28].consumption || 0.00; //it should be 28
   
   solarCell.font = EXCEL_FONTSTYLES;
   solarValue.font = EXCEL_FONTSTYLES;
