@@ -49,9 +49,8 @@ const METER_NAME = {
     'Energymeter 27': 'Godown Main Incoming',
     'Energymeter 28': 'Borewell',
     'Energymeter 29': 'Solar',
-    'Energymeter 30': 'Null',
-    'Energymeter 31': 'CompressorFlow1',
-    'Energymeter 32': 'CompressorFlow2',
+    'Energymeter 30': 'CompressorFlow1',
+    'Energymeter 31': 'CompressorFlow2',
 };
 
 module.exports = {

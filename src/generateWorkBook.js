@@ -21,6 +21,7 @@ generateWorkBook = (res, workBookDatas) => {
   var meterHeadingRow = meterSheet.addRow();
   var meterColumns = workBookDatas[0].column_name;
   var meterDatas = workBookDatas[0].sheet_data;
+  var meterNames = Object.values(METER_NAME);
 
   meterSheet.getRow(4).font = EXCEL_FONTSTYLES;
 
@@ -34,12 +35,13 @@ generateWorkBook = (res, workBookDatas) => {
   }
 
   //adding rowvalues
-  for (let i = 0; i < meterDatas.length; i++) {
+  for (let i = 0; i < meterNames.length; i++) {
+    const meterConsumption = meterDatas.find((meterData) => meterData.name === meterNames[i]);
     var meterRow = meterSheet.addRow();
     for (let j = 0; j < 3; j++) {
       meterRow.getCell(1).value = i + 1;
-      meterRow.getCell(2).value = meterDatas[i].name;
-      meterRow.getCell(3).value = meterDatas[i].consumption;
+      meterRow.getCell(2).value = meterNames[i];
+      meterRow.getCell(3).value = meterConsumption === undefined ? 0 : meterConsumption.consumption;
 
       meterRow.getCell(1).alignment = EXCEL_HORIZONTALLEFT;
       meterRow.getCell(1).border = BORDERS;
@@ -72,7 +74,8 @@ generateWorkBook = (res, workBookDatas) => {
   mainIncomingCell.value = METER_NAME['Energymeter 2'];
   
   const mainIncomingValue = worksheet.getCell("C4");
-  mainIncomingValue.value = workBookDatas[0].sheet_data[1].consumption || 0.00;
+  const mainIncomingFilteredValue = workBookDatas[0].sheet_data.find((element) => element.name == "MainIncoming");
+  mainIncomingValue.value = mainIncomingFilteredValue.consumption || 0.00;
   
   mainIncomingCell.font = EXCEL_FONTSTYLES;
   mainIncomingValue.font = EXCEL_FONTSTYLES;
@@ -87,7 +90,8 @@ generateWorkBook = (res, workBookDatas) => {
   generatorCell.font = EXCEL_FONTSTYLES;
  
   const generatorValue = worksheet.getCell("C5");
-  generatorValue.value = workBookDatas[0].sheet_data[2].consumption || 0.00; //it should be 2
+  const generatorFilteredValue = workBookDatas[0].sheet_data.find((element) => element.name == "Generator");
+  generatorValue.value = generatorFilteredValue ? generatorFilteredValue.consumption : 0.00;
  
   generatorValue.font = EXCEL_FONTSTYLES;
   generatorCell.border = BORDERS;
@@ -100,7 +104,8 @@ generateWorkBook = (res, workBookDatas) => {
   solarCell.value = METER_NAME['Energymeter 29'];
   
   const solarValue = worksheet.getCell("C6");
-  solarValue.value = workBookDatas[0].sheet_data[28].consumption || 0.00; //it should be 28
+  const solarFilteredValue = workBookDatas[0].sheet_data.find((element) => element.name == "Solar");
+  solarValue.value = solarFilteredValue ? solarFilteredValue.consumption : 0.00;
   
   solarCell.font = EXCEL_FONTSTYLES;
   solarValue.font = EXCEL_FONTSTYLES;
@@ -123,14 +128,15 @@ generateWorkBook = (res, workBookDatas) => {
   }
 
   //adding rowvalues
-  for (let i = 0; i < allItems.length; i++) {
-    if (!EXCLUDED_METERS.includes(allItems[i].name)) {
+  for (let i = 0; i < meterNames.length; i++) {
+    if (!EXCLUDED_METERS.includes(meterNames[i])) {
+      const energyConsumption = allItems.find((allItem) => allItem.name === meterNames[i]);
       var dataRow = worksheet.addRow();
       serialNumber = serialNumber + 1;
       for (let j = 0; j < 3; j++) {
         dataRow.getCell(1).value = serialNumber;
-        dataRow.getCell(2).value = allItems[i].name;
-        dataRow.getCell(3).value = allItems[i].consumption;
+        dataRow.getCell(2).value = meterNames[i];
+        dataRow.getCell(3).value = energyConsumption === undefined ? 0 : energyConsumption.consumption;
 
         dataRow.getCell(1).alignment = EXCEL_HORIZONTALLEFT;
         dataRow.getCell(1).border = BORDERS;
