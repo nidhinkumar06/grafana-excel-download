@@ -1,20 +1,56 @@
-const Excel = require('exceljs');
-const { METER_NAME, BORDERS, EXCLUDED_METERS, EXCLUDED_METER_CONSUMPTION, EXCEL_FONTSTYLES, EXCEL_HORIZONTALLEFT, EXCEL_HEADING, EXCEL_ALIGNMENTSTYLES, WORKSHEET_NAMES } = require('./constants');
+const Excel = require("exceljs");
+const moment = require("moment");
+const {
+  METER_NAME,
+  BORDERS,
+  EXCLUDED_METERS,
+  EXCLUDED_METER_CONSUMPTION,
+  EXCEL_FONTSTYLES,
+  EXCEL_HORIZONTALLEFT,
+  EXCEL_HEADING,
+  EXCEL_ALIGNMENTSTYLES,
+  WORKSHEET_NAMES,
+  TITLE_FONT,
+  SUBTITLE_FONT,
+} = require("./constants");
+const { LOGO } = require("./logobase64");
 
 generateWorkBook = (res, workBookDatas) => {
   var workbook = new Excel.Workbook();
 
+  const fromDate = moment(workBookDatas[0].from).format("DD-MM-YYYYTHH:mm:ss");
+  const toDate = moment(workBookDatas[0].to).format("DD-MM-YYYYTHH:mm:ss");
+
+  const logoBase64Image = LOGO;
+  const logo = workbook.addImage({
+    base64: logoBase64Image,
+    extension: "png",
+  });
   /** Meter Reading Sheet */
 
   var meterSheet = workbook.addWorksheet(WORKSHEET_NAMES[0]);
 
   //Main Header
   meterSheet.mergeCells("A1:C3");
-  const meterCell = meterSheet.getCell("A2");
+
+  meterSheet.addImage(logo, "A1:A3");
+
+  const meterCell = meterSheet.getCell("B2");
 
   meterCell.font = EXCEL_FONTSTYLES;
   meterCell.alignment = EXCEL_ALIGNMENTSTYLES;
-  meterCell.value = EXCEL_HEADING;
+  meterCell.value = {
+    richText: [
+      {
+        font: TITLE_FONT,
+        text: `${EXCEL_HEADING}\n`,
+      },
+      {
+        font: SUBTITLE_FONT,
+        text: `From: ${fromDate} To: ${toDate}`,
+      },
+    ],
+  };
   meterCell.border = BORDERS;
 
   //OtherReadings
@@ -36,12 +72,15 @@ generateWorkBook = (res, workBookDatas) => {
 
   //adding rowvalues
   for (let i = 0; i < meterNames.length; i++) {
-    const meterConsumption = meterDatas.find((meterData) => meterData.name === meterNames[i]);
+    const meterConsumption = meterDatas.find(
+      (meterData) => meterData.name === meterNames[i]
+    );
     var meterRow = meterSheet.addRow();
     for (let j = 0; j < 3; j++) {
       meterRow.getCell(1).value = i + 1;
       meterRow.getCell(2).value = meterNames[i];
-      meterRow.getCell(3).value = meterConsumption === undefined ? 0 : meterConsumption.consumption;
+      meterRow.getCell(3).value =
+        meterConsumption === undefined ? 0 : meterConsumption.consumption;
 
       meterRow.getCell(1).alignment = EXCEL_HORIZONTALLEFT;
       meterRow.getCell(1).border = BORDERS;
@@ -49,7 +88,6 @@ generateWorkBook = (res, workBookDatas) => {
       meterRow.getCell(3).border = BORDERS;
     }
   }
-
 
   /** Overall Excel Sheet */
 
@@ -59,24 +97,42 @@ generateWorkBook = (res, workBookDatas) => {
   // Main Header
 
   worksheet.mergeCells("A1:C3");
+  worksheet.addImage(logo, "A1:A3");
+
   const customCell = worksheet.getCell("A2");
 
   customCell.font = EXCEL_FONTSTYLES;
   customCell.alignment = EXCEL_ALIGNMENTSTYLES;
-  customCell.value = EXCEL_HEADING;
+  // customCell.value = EXCEL_HEADING;
+  customCell.value = {
+    richText: [
+      {
+        font: TITLE_FONT,
+        text: `${EXCEL_HEADING}\n`,
+      },
+      {
+        font: SUBTITLE_FONT,
+        text: `From: ${fromDate} To: ${toDate}`,
+      },
+    ],
+  };
   customCell.border = BORDERS;
-
 
   //Main Incoming Data
   worksheet.mergeCells("A4:B4");
   const mainIncomingCell = worksheet.getCell("A4");
   mainIncomingCell.alignment = EXCEL_ALIGNMENTSTYLES;
-  mainIncomingCell.value = METER_NAME['Energymeter 2'];
-  
+  mainIncomingCell.value = METER_NAME["Energymeter 2"];
+
   const mainIncomingValue = worksheet.getCell("C4");
-  const mainIncomingFilteredValue = workBookDatas[0].sheet_data.find((element) => element.name == "MainIncoming");
-  mainIncomingValue.value = mainIncomingFilteredValue.consumption || 0.00;
-  
+  const mainIncomingFilteredValue = workBookDatas[0].sheet_data.find(
+    (element) => element.name == "MainIncoming"
+  );
+  mainIncomingValue.value =
+    mainIncomingFilteredValue == undefined
+      ? 0
+      : mainIncomingFilteredValue.consumption;
+
   mainIncomingCell.font = EXCEL_FONTSTYLES;
   mainIncomingValue.font = EXCEL_FONTSTYLES;
   mainIncomingCell.border = BORDERS;
@@ -86,13 +142,18 @@ generateWorkBook = (res, workBookDatas) => {
   worksheet.mergeCells("A5:B5");
   const generatorCell = worksheet.getCell("A5");
   generatorCell.alignment = EXCEL_ALIGNMENTSTYLES;
-  generatorCell.value = METER_NAME['Energymeter 3'];
+  generatorCell.value = METER_NAME["Energymeter 3"];
   generatorCell.font = EXCEL_FONTSTYLES;
- 
+
   const generatorValue = worksheet.getCell("C5");
-  const generatorFilteredValue = workBookDatas[0].sheet_data.find((element) => element.name == "Generator");
-  generatorValue.value = generatorFilteredValue ? generatorFilteredValue.consumption : 0.00;
- 
+  const generatorFilteredValue = workBookDatas[0].sheet_data.find(
+    (element) => element.name == "Generator"
+  );
+  generatorValue.value =
+    generatorFilteredValue == undefined
+      ? 0
+      : generatorFilteredValue.consumption;
+
   generatorValue.font = EXCEL_FONTSTYLES;
   generatorCell.border = BORDERS;
   generatorValue.border = BORDERS;
@@ -101,22 +162,41 @@ generateWorkBook = (res, workBookDatas) => {
   worksheet.mergeCells("A6:B6");
   const solarCell = worksheet.getCell("A6");
   solarCell.alignment = EXCEL_ALIGNMENTSTYLES;
-  solarCell.value = METER_NAME['Energymeter 29'];
-  
+  solarCell.value = METER_NAME["Energymeter 29"];
+
   const solarValue = worksheet.getCell("C6");
-  const solarFilteredValue = workBookDatas[0].sheet_data.find((element) => element.name == "Solar");
-  solarValue.value = solarFilteredValue ? solarFilteredValue.consumption : 0.00;
-  
+  const solarFilteredValue = workBookDatas[0].sheet_data.find(
+    (element) => element.name == "Solar"
+  );
+  solarValue.value =
+    solarFilteredValue == undefined ? 0 : solarFilteredValue.consumption;
+
   solarCell.font = EXCEL_FONTSTYLES;
   solarValue.font = EXCEL_FONTSTYLES;
   solarCell.border = BORDERS;
   solarValue.border = BORDERS;
 
+  //Total Incoming
+  worksheet.mergeCells("A7:B7");
+  const totalCell = worksheet.getCell("A7");
+  totalCell.alignment = EXCEL_ALIGNMENTSTYLES;
+  totalCell.value = "Total Incoming";
+
+  const totalIncomingValue = worksheet.getCell("C7");
+  const totalSum =
+    mainIncomingValue.value + generatorValue.value + solarValue.value;
+  totalIncomingValue.value = totalSum;
+
+  totalCell.font = EXCEL_FONTSTYLES;
+  totalIncomingValue.font = EXCEL_FONTSTYLES;
+  totalCell.border = BORDERS;
+  totalIncomingValue.border = BORDERS;
+
   //OtherReadings
   var headerRow = worksheet.addRow();
   var columns = workBookDatas[0].column_name;
   var allItems = workBookDatas[0].sheet_data;
-  worksheet.getRow(7).font = EXCEL_FONTSTYLES;
+  worksheet.getRow(8).font = EXCEL_FONTSTYLES;
 
   //setting header
   for (let i = 0; i < columns.length; i++) {
@@ -130,13 +210,16 @@ generateWorkBook = (res, workBookDatas) => {
   //adding rowvalues
   for (let i = 0; i < meterNames.length; i++) {
     if (!EXCLUDED_METERS.includes(meterNames[i])) {
-      const energyConsumption = allItems.find((allItem) => allItem.name === meterNames[i]);
+      const energyConsumption = allItems.find(
+        (allItem) => allItem.name === meterNames[i]
+      );
       var dataRow = worksheet.addRow();
       serialNumber = serialNumber + 1;
       for (let j = 0; j < 3; j++) {
         dataRow.getCell(1).value = serialNumber;
         dataRow.getCell(2).value = meterNames[i];
-        dataRow.getCell(3).value = energyConsumption === undefined ? 0 : energyConsumption.consumption;
+        dataRow.getCell(3).value =
+          energyConsumption === undefined ? 0 : energyConsumption.consumption;
 
         dataRow.getCell(1).alignment = EXCEL_HORIZONTALLEFT;
         dataRow.getCell(1).border = BORDERS;
@@ -157,14 +240,16 @@ generateWorkBook = (res, workBookDatas) => {
     }
   }
 
-
   worksheet.mergeCells(footerTextCell);
   worksheet.getRow(1).font = EXCEL_FONTSTYLES;
   worksheet.getCell(`A${rowCount + 1}`).alignment = EXCEL_ALIGNMENTSTYLES;
   worksheet.getCell(`A${rowCount + 1}`).value = "Overall Consumption";
   worksheet.getCell(`A${rowCount + 1}`).font = EXCEL_FONTSTYLES;
   worksheet.mergeCells(footerTextValue);
-  worksheet.getCell(`C${rowCount + 1}`).alignment = { vertical: 'middle', horizontal: 'right' };
+  worksheet.getCell(`C${rowCount + 1}`).alignment = {
+    vertical: "middle",
+    horizontal: "right",
+  };
   worksheet.getCell(`C${rowCount + 1}`).value = overallConsumption;
   worksheet.getCell(`C${rowCount + 1}`).font = EXCEL_FONTSTYLES;
   worksheet.getCell(footerTextCell).border = BORDERS;
@@ -173,20 +258,20 @@ generateWorkBook = (res, workBookDatas) => {
   /** Creating workbook */
 
   res.setHeader(
-    'Content-Type',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    "Content-Type",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
   );
   res.setHeader(
-    'Content-Disposition',
-    'attachment; filename=' + `Energymeter-${Date.now()}.xlsx`
+    "Content-Disposition",
+    "attachment; filename=" + `Energymeter-${Date.now()}.xlsx`
   );
 
   return workbook.xlsx.write(res).then(function (result) {
-    console.log('excel downloaded successfully');
+    console.log("excel downloaded successfully");
     res.status(200).end();
   });
 };
 
 module.exports = {
-  generateWorkBook
-}
+  generateWorkBook,
+};
