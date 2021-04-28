@@ -1,10 +1,10 @@
 const { InfluxDB, flux } = require("@influxdata/influxdb-client");
-const { url, token, org, bucket } = require("../env");
+const { url, token, org, bucket, timeout } = require("../env");
 const { METER_NAME } = require('./constants');
 
-getWattHourReceived = async (duration) => {
-  const queryApi = new InfluxDB({ url, token }).getQueryApi(org);
-  const fluxQuery = flux`from(bucket:"${bucket}") |> range(start: ${duration}) |> filter(fn: (r) => r._measurement == "modbus") |> filter(fn: (r) => r["_field"] == "Wh Received") |> map(fn: (r) => ({ r with _value: r._value / 1000.0}))  |> aggregateWindow(every: 1y, fn: last, createEmpty: false)`;
+getWattHourReceived = async (startDuration, endDuration) => {
+  const queryApi = new InfluxDB({ url, token, timeout }).getQueryApi(org);
+  const fluxQuery = flux`from(bucket:"${bucket}") |> range(start: ${startDuration}, stop: ${endDuration}) |> filter(fn: (r) => r._measurement == "modbus") |> filter(fn: (r) => r["_field"] == "Wh Received") |> map(fn: (r) => ({ r with _value: r._value / 1000.0}))  |> aggregateWindow(every: 1y, fn: last, createEmpty: false)`;
   const wattHourJSON = [];
 
   await queryApi
