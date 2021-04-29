@@ -12,14 +12,15 @@ const {
   WORKSHEET_NAMES,
   TITLE_FONT,
   SUBTITLE_FONT,
+  MERGE_CELL_HEADERALIGNMENT,
 } = require("./constants");
 const { LOGO } = require("./logobase64");
 
 generateWorkBook = (res, workBookDatas) => {
   var workbook = new Excel.Workbook();
 
-  const fromDate = moment(workBookDatas[0].from).format("DD-MM-YYYYTHH:mm:ss");
-  const toDate = moment(workBookDatas[0].to).format("DD-MM-YYYYTHH:mm:ss");
+  const fromDate = moment(workBookDatas[0].from).format("DD-MM-YYYY HH:mm:ss");
+  const toDate = moment(workBookDatas[0].to).format("DD-MM-YYYY HH:mm:ss");
 
   const logoBase64Image = LOGO;
   const logo = workbook.addImage({
@@ -51,6 +52,7 @@ generateWorkBook = (res, workBookDatas) => {
       },
     ],
   };
+  meterCell.alignment = MERGE_CELL_HEADERALIGNMENT;
   meterCell.border = BORDERS;
 
   //OtherReadings
@@ -108,7 +110,7 @@ generateWorkBook = (res, workBookDatas) => {
     richText: [
       {
         font: TITLE_FONT,
-        text: `${EXCEL_HEADING}\n`,
+        text: `${EXCEL_HEADING} \n`,
       },
       {
         font: SUBTITLE_FONT,
@@ -116,6 +118,7 @@ generateWorkBook = (res, workBookDatas) => {
       },
     ],
   };
+  customCell.alignment = MERGE_CELL_HEADERALIGNMENT;
   customCell.border = BORDERS;
 
   //Main Incoming Data

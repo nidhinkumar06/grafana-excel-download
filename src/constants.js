@@ -22,6 +22,7 @@ const EXCLUDED_METER_CONSUMPTION = [
 ];
 const EXCEL_FONTSTYLES = { bold: true };
 const EXCEL_ALIGNMENTSTYLES = { vertical: "middle", horizontal: "center" };
+const MERGE_CELL_HEADERALIGNMENT = { wrapText: true, vertical: "middle", horizontal: "center" };
 const EXCEL_HORIZONTALLEFT = { horizontal: "left" };
 const EXCEL_HEADING = "Venbro Polymers";
 const WORKSHEET_NAMES = ["MeterReadings", "Overall"];
@@ -98,4 +99,5 @@ module.exports = {
   WORKSHEET_NAMES,
   TITLE_FONT,
   SUBTITLE_FONT,
+  MERGE_CELL_HEADERALIGNMENT,
 };
