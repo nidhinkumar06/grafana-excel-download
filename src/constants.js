@@ -37,7 +37,7 @@ const BORDERS = {
 const WATTHOURRECEIVED_HEADERS = [
   { header: "S.No", key: "no", width: 10 },
   { header: "MeterName", key: "name", width: 32 },
-  { header: "EnergyConsumption(Wh)", key: "consumption", width: 32 },
+  { header: "EnergyConsumption(kwh)", key: "consumption", width: 32 },
 ];
 
 const TITLE_FONT = {
