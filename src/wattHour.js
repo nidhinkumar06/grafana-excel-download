@@ -12,11 +12,12 @@ getWattHourReceived = async (startDuration, endDuration) => {
     .then((datas) => {
       datas.forEach((data) => {
         const meterName = METER_NAME[data.name];
+        const value = data._value === null ? 0.00 : data._value;
         wattHourJSON.push({
           time: data._time,
           measurement: data._measurement,
           name: meterName,
-          consumption: parseFloat(data._value.toFixed(2)),
+          consumption: parseFloat(value.toFixed(2)),
           host: data.host,
           field: data._field,
         });
